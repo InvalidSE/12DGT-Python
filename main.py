@@ -17,6 +17,7 @@
 
 # Imports
 import time
+from xml.etree.ElementInclude import default_loader
 
 # Declaring the order dict in a way I can refer back to later if I need to
 order = {
@@ -45,20 +46,27 @@ menu = {
     "Chips (In Scoops)": 3.00
 }
 
-# declaring some more important variables
-yes = ["y", "Y", "yes", "YES", "Yes", "True", "true", "1"]
-no = ["n", "N", "No", "no", "NO", "false", "False", "0"]
+# editable variables
+delivery_cost = 5.00
+frozen_discount = 1.05
+quantity_limit = 7
+custom_item_limits = {  # Custom limits for certain items if required 
+    "Chips (In Scoops)": 999
+}
+
+# editable message variables
+message_thanks = "Thank you for shopping at Freddies Fast Fish"
 invalid_message_yn = "Invalid input, please enter a yes or no answer"
 invalid_message = "Invalid input"
 invalid_message_num = "Invalid input, please enter a valid number value"
-message_thanks = "Thank you for shopping at Freddies Fast Fish"
-spacer = "\n# ====================== #\n"
 
+# variables that shouldn't need changing
+yes = ["y", "Y", "yes", "YES", "Yes", "True", "true", "1"]
+no = ["n", "N", "No", "no", "NO", "false", "False", "0"]
+spacer = "\n# ====================== #\n"
 delivery = False
-delivery_cost = 5.00
 frozen = False
-frozen_discount = 1.05
-quantity_limit = 7
+
 
 title = """
 ███████╗██████╗ ███████╗██████╗ ██████╗ ██╗███████╗███████╗    ███████╗ █████╗ ███████╗████████╗    ███████╗██╗███████╗██╗  ██╗
@@ -217,13 +225,18 @@ def add_item(): #add item to order
                             time.sleep(1)
                             continue #restarts qty loop
 
-                        if quantity_limit >= quantity >= 1: #if it's within 1 - quantity_limit
+                        if list(menu.keys())[userinput - 1] in list(custom_item_limits.keys()):  # if it's in the custom item quantity variable set the custom item quantity
+                            item_quantity_limit = custom_item_limits[list(menu.keys())[userinput - 1]]
+                        else:
+                            item_quantity_limit = quantity_limit
+
+                        if item_quantity_limit >= quantity >= 1: #if it's within 1 - quantity_limit
                             order["items"][i] = item[0], quantity #sets the order to have item
                             print(spacer)
                             main_menu() #return to menu
                             return
                         else:
-                            print(invalid_message_num + " from 1 - " + str(quantity_limit)) #out of range
+                            print(invalid_message_num + " from 1 - " + str(item_quantity_limit)) #out of range
                             time.sleep(1)
                             continue  # continue loop
                 i += 1
@@ -236,14 +249,19 @@ def add_item(): #add item to order
                     time.sleep(1)
                     continue  # restart loop
 
-                if quantity_limit >= quantity >= 1: # if within correct range
+                if list(menu.keys())[userinput - 1] in list(custom_item_limits.keys()):  # if it's in the custom item quantity variable set the custom item quantity
+                    item_quantity_limit = custom_item_limits[list(menu.keys())[userinput - 1]]
+                else:
+                    item_quantity_limit = quantity_limit
+
+                if item_quantity_limit >= quantity >= 1: # if within correct range
                     order["items"].append([list(menu.keys())[userinput - 1], quantity])  # add to order
                     print(spacer)
                     main_menu()  # return to menu
                     return
 
                 else:
-                    print(invalid_message_num + " from 1 - " + str(quantity_limit))  # was invalid :(
+                    print(invalid_message_num + " from 1 - " + str(item_quantity_limit))  # was invalid :(
                     time.sleep(1)
                     continue  # continue loop
 
