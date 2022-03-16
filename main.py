@@ -53,6 +53,7 @@ quantity_limit = 7
 custom_item_limits = {  # Custom limits for certain items if required 
     "Chips (In Scoops)": 999
 }
+non_fish_items = ["Chips (In Scoops)"]  # These do not get affected by the frozen discount
 
 # editable message variables
 message_thanks = "Thank you for shopping at Freddies Fast Fish"
@@ -149,7 +150,7 @@ def finish_order():
 
     subtotal = 0
     total = 0
-    total_items = 0
+    total_fish_items = 0
 
     # Time to print receipt
     print("\n\n\n# =========== FINAL ORDER RECEIPT =========== #\n")
@@ -168,7 +169,10 @@ def finish_order():
         spaces = 25 - len(item[0])  # get correct spacing to look nice
         spaces2 = 8 - len(str(item[1]))  # ^^^
         subtotal = subtotal + menu[item[0]]*item[1]  # calculate cost
-        total_items = total_items + item[1]  # total items to then subtract the frozen cost off
+
+        if(item[0] not in non_fish_items):  # not a fish item, no need to subtract frozen discount
+            total_fish_items = total_fish_items + item[1]  # total items to then subtract the frozen cost off
+
         print("  " + item[0] + " " * spaces + "QTY: " + str(item[1]) + " " * spaces2 + "Each: " + str("{:.2f}".format(menu[item[0]]))) #print the item, spaces, then the item quantity, spaces2 and then price each
 
     print("\nSubtotal: $" + str("{:.2f}".format(subtotal)))  # subtotal before delivery and frozen costs applied ({:.2f} is used for 2 decimal places)
@@ -176,8 +180,8 @@ def finish_order():
         subtotal = subtotal + delivery_cost
         print("Delivery cost: $" + str("{:.2f}".format(delivery_cost)))
     if frozen: #if frozen subtract the frozen discount * amount of items (by default discount is -$1.05 per item)
-        subtotal = subtotal - frozen_discount * total_items
-        print("Frozen discount: $" + str("{:.2f}".format(frozen_discount * total_items)))
+        subtotal = subtotal - frozen_discount * total_fish_items
+        print("Frozen discount: $" + str("{:.2f}".format(frozen_discount * total_fish_items)))
     total = subtotal
 
     print("\nTotal: $" + str("{:.2f}".format(total))) #print total
