@@ -85,7 +85,7 @@ version = "1.0.0"
 # Main Menu Function
 def main_menu():
     print("Welcome to Freddie's Fast Fish\nPlease choose an option:")
-    print("1) Add item to order\n2) Edit items in order\n3) Finish order and pay")
+    print("1) Add item to order\n2) Edit items in order\n3) Finish order and pay\n4) Cancel order")
 
     while True:
         userinput = input("\nInput Number Selection: ")  # gets number selection for menu choice
@@ -102,6 +102,11 @@ def main_menu():
             print(spacer)
             finish_order()
             break
+        elif userinput == "4":  # User selected to cancel order
+            print(spacer)
+            print("Order cancelled, thank you for your time\n")
+            time.sleep(5)
+            quit()
         else:  # invalid input
             print(invalid_message_num)
             time.sleep(1)
