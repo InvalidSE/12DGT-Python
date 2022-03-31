@@ -204,12 +204,13 @@ def add_item(): #add item to order
             print(formatted_item + " " * spaces + "$" + str("{:.2f}".format(menu[item]))) #prints the item + cost
 
         userinput = input("\nInput number selection (Input nothing to return to menu)\nSelection: ")
-        if userinput == "": #if nothing, return to menu
-            print(spacer)
-            main_menu()
-            return
+
 
         try:
+            if userinput == "": #if nothing, return to menu
+                print(spacer)
+                main_menu()
+                return
             userinput = int(userinput)
 
         except:  # invalid input (could not convert to int)
@@ -224,6 +225,7 @@ def add_item(): #add item to order
             quantity = 0  # This is here so my PyCharm doesn't yell at me
 
             i = 0
+
             for item in order["items"]: # goes through order to see if the item is already in the order, if it is it changes the item qty instead of adding another item of it (important for quantity limit)
 
                 if item[0] == list(menu.keys())[userinput - 1]:
@@ -375,6 +377,5 @@ if delivery: #for delivery items, need delivery details
 
 order["delivery"] = delivery #setting details in the order var
 order["frozen"] = frozen
-
 
 main_menu()
