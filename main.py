@@ -24,9 +24,9 @@ order = {
     "items": [],
     "frozen": False,
     "delivery": False,
-    # "name": "",
+    "name": "",
     # "address": "",
-    # "phone": 0,
+    "phone": 0,
 }
 
 # menu = fish options (in list, containing prices for each individual one)
@@ -106,7 +106,7 @@ def main_menu():
             print(spacer)
             print("Order cancelled, thank you for your time\n")
             time.sleep(5)
-            userinput = input("Would you like to start another order?\nInput nothing to cancel:")
+            userinput = input("Would you like to start another order?\nInput nothing to cancel: ")
             if userinput in yes:
                 begin_order()
                 return
@@ -170,7 +170,7 @@ def finish_order():
     print("  Delivery: " + str(order["delivery"]))
     print("  Frozen: " + str(order["frozen"]))
     print("  Name: " + order["name"])
-    print("  Phone: " + str(order["phone_number"]))
+    print("  Phone: " + str(order["phone"]))
 
     if order["delivery"]:
         print("  Address: " + order["address"])
@@ -201,7 +201,7 @@ def finish_order():
     print("\n# =========== FINAL ORDER RECEIPT =========== #\n")
 
     time.sleep(5)
-    userinput = input("Would you like to start another order?")
+    userinput = input("Would you like to start another order? ")
     if userinput in yes:
         begin_order()
         return
@@ -344,13 +344,14 @@ def get_user_details(is_delivery):
 
 
 def begin_order():
+    global order
     order = {
         "items": [],
         "frozen": False,
         "delivery": False,
-        # "name": "",
-        # "address": "",
-        # "phone": 0,
+        "name": "",
+        "address": "",
+        "phone": 0,
     }
 
     # Starting Order
@@ -394,12 +395,12 @@ def begin_order():
         name, address, phone_number = get_user_details(True)
         order["name"] = name
         order["address"] = address
-        order["phone_number"] = phone_number
+        order["phone"] = phone_number
         print(spacer)
     else:
         name, phone_number = get_user_details(False)
         order["name"] = name
-        order["phone_number"] = phone_number
+        order["phone"] = phone_number
 
     order["delivery"] = delivery #setting details in the order var
     order["frozen"] = frozen
