@@ -201,7 +201,8 @@ def add_item(): #add item to order
             i += 1
             formatted_item = str(i) + ") " + item #formats the item to be printed
             spaces = 25 - len(formatted_item) #calculates spaces amount for perfect order aesthetics
-            print(formatted_item + " " * spaces + "$" + str("{:.2f}".format(menu[item]))) #prints the item + cost
+            #print(formatted_item + " " * spaces + "$" + str("{:.2f}".format(menu[item]))) #prints the item + cost
+            print(formatted_item + "       $" + str(menu[item]))
 
         userinput = input("\nInput number selection (Input nothing to return to menu)\nSelection: ")
 

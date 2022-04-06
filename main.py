@@ -30,7 +30,7 @@ order = {
 }
 
 # menu = fish options (in list, containing prices for each individual one)
-menu = {
+menu = {  # names must not be longer than 25 characters, for formatting purposes.
     "Shark": 4.10,
     "Flounder": 4.10,
     "Cod": 4.10,
@@ -81,6 +81,121 @@ version = "1.0.0"
 
 # ====================================================== FUNCTIONS ============================================================== #
 
+# Begin Order Function
+def begin_order():
+    global order
+    order = {
+        "items": [],
+        "frozen": False,
+        "delivery": False,
+        "name": "",
+        "address": "",
+        "phone": 0,
+    }
+
+    # Starting Order
+    print(spacer)
+    print(title)
+    print("      Version: " + version + "            By Taine Reader\n")
+
+    print(spacer)
+
+    # Checking if order is to be delivered or picked up
+    while True:  # While true is used for continuosly getting input until a valid input is reached (eg. yes or no)
+        userinput = input("Is the order delivery? (Delivery orders have a $" + str("{:.2f}".format(delivery_cost)) + " delivery fee)\nDelivery? [Y/N]: ")
+        if userinput in yes: #if the answer is yes, enable delivery
+            delivery = True
+            break
+        elif userinput in no: #disable delivery
+            delivery = False
+            break
+        else:
+            print(invalid_message_yn) #invalid message
+            time.sleep(1)
+            print(spacer)
+
+    print(spacer)
+
+    # Checking if order is to be prepared frozen or fresh
+    while True:  # While true is used for continuosly getting input until a valid input is reached (eg. yes or no)
+        userinput = input("Is the order frozen? (Frozen orders get a discount of $" + str("{:.2f}".format(frozen_discount)) + " per item)\nFrozen? [Y/N]: ")
+        if userinput in yes: #is frozen
+            frozen = True
+            break
+        elif userinput in no: #isn't frozen
+            frozen = False
+            break
+        else:
+            print(invalid_message_yn) #invalid input
+            time.sleep(1)
+
+    print(spacer)
+
+    if delivery: #for delivery items, need delivery details
+        name, address, phone_number = get_user_details(True)
+        order["name"] = name
+        order["address"] = address
+        order["phone"] = phone_number
+        print(spacer)
+    else:
+        name, phone_number = get_user_details(False)
+        order["name"] = name
+        order["phone"] = phone_number
+        print(spacer)
+
+    order["delivery"] = delivery #setting details in the order var
+    order["frozen"] = frozen
+
+    main_menu()
+    return
+
+# Get User Details Function
+def get_user_details(is_delivery):
+    # Get customer's name
+    while True:  # Loop until user enters a valid name (eg. not nothing)
+        name = input("Please enter your name: ").title()
+        if name == "":
+            # Nothing entered message
+            print("Please enter a name!")
+            time.sleep(1)
+        else:
+            if input("Is this correct: " + name + " [Y/N]: ") in yes:
+                # Exit out of loop as a valid name has been reached
+                break
+
+    print(spacer)
+
+    if(is_delivery):
+        # Get customer's address
+        while True:  # Loop until user enters a valid address (eg. not nothing)
+            address = input("Please enter your address: ").title()
+            if address == "":
+                # Nothing entered message
+                print("Please enter an address!")
+                time.sleep(1)
+            else:
+                if input("Is this correct: " + address + " [Y/N]: ") in yes:
+                    # Exit out of loop as a valid address has been reached
+                    break
+
+        print(spacer)
+
+    # Get customer's phone number
+    while True:  # Loop until user enters a valid phone number (eg. a number with no letters)
+        phone_number = input("Please enter your phone number (No spaces or plus, just numbers): ")
+        try:
+            phone_number = int(phone_number)
+            if input("Is this correct: " + str(phone_number) + " [Y/N]: ") in yes:
+                # Exit out of loop since correct number has been reached
+                break
+        except:
+            print(invalid_message_num)
+            time.sleep(1)
+
+    if(is_delivery):
+        return name, address, phone_number  # return variables
+    else:
+        return name, phone_number  # returns variables
 
 # Main Menu Function
 def main_menu():
@@ -105,7 +220,7 @@ def main_menu():
         elif userinput == "4":  # User selected to cancel order
             print(spacer)
             print("Order cancelled, thank you for your time\n")
-            time.sleep(5)
+            time.sleep(2)
             userinput = input("Would you like to start another order?\nInput nothing to cancel: ")
             if userinput in yes:
                 begin_order()
@@ -116,95 +231,6 @@ def main_menu():
         else:  # invalid input
             print(invalid_message_num)
             time.sleep(1)
-
-
-# Edit Order
-def edit_order():  # to remove items from order
-    while True:
-        if len(order["items"]) > 0:  # checks if order > 0
-            i = 0
-            for item in order["items"]:  # prints all the items
-                i += 1
-                formatted_item = str(i) + ") " + item[0]
-                spaces = 25 - len(formatted_item)
-                print(formatted_item + " " * spaces + "QTY: " + str(item[1]))
-
-            userinput = input("\nRemove item? (Input nothing to return to menu)\nSelection: ")
-            if userinput == "":  # if no input, return to menu without doing anything
-                print(spacer)
-                main_menu()  # back to menu
-                return
-
-            try:
-                userinput = int(userinput)  # converts to int
-            except:  # failed to convert to integer
-                print(invalid_message_num)
-                time.sleep(1)
-                print(spacer)
-                continue  # continue loop
-
-            if len(order["items"]) >= userinput >= 1:  # if in the valid range of selections
-                del[order["items"][userinput - 1]]  # removes item from selections
-                print(spacer)
-                continue  # restart loop
-        else:
-            main_menu()  # return to menu
-            return
-
-
-# Finish Order
-def finish_order():
-    if not order["items"]:  # if there are no items in the order, don't do anything
-        print("There were no items on this order, cancelling order")
-        time.sleep(5)
-        exit()
-
-    subtotal = 0
-    total = 0
-    total_fish_items = 0
-
-    # Time to print receipt
-    print("\n\n\n# =========== FINAL ORDER RECEIPT =========== #\n")
-
-    print("Details:")  # printing details
-    print("  Delivery: " + str(order["delivery"]))
-    print("  Frozen: " + str(order["frozen"]))
-    print("  Name: " + order["name"])
-    print("  Phone: " + str(order["phone"]))
-
-    if order["delivery"]:
-        print("  Address: " + order["address"])
-
-    print("\nItems:")
-    for item in order["items"]:  # for each item in the order
-        spaces = 25 - len(item[0])  # get correct spacing to look nice
-        spaces2 = 8 - len(str(item[1]))  # ^^^
-        subtotal = subtotal + menu[item[0]]*item[1]  # calculate cost
-
-        if(item[0] not in non_fish_items):  # not a fish item, no need to subtract frozen discount
-            total_fish_items = total_fish_items + item[1]  # total items to then subtract the frozen cost off
-
-        print("  " + item[0] + " " * spaces + "QTY: " + str(item[1]) + " " * spaces2 + "Each: " + str("{:.2f}".format(menu[item[0]]))) #print the item, spaces, then the item quantity, spaces2 and then price each
-
-    print("\nSubtotal: $" + str("{:.2f}".format(subtotal)))  # subtotal before delivery and frozen costs applied ({:.2f} is used for 2 decimal places)
-    if order["delivery"]:  # if it's delivery add the delivery cost (default $5)
-        subtotal = subtotal + delivery_cost
-        print("Delivery cost: $" + str("{:.2f}".format(delivery_cost)))
-    if order["frozen"]: #if frozen subtract the frozen discount * amount of items (by default discount is -$1.05 per item)
-        subtotal = subtotal - frozen_discount * total_fish_items
-        print("Frozen discount: $" + str("{:.2f}".format(frozen_discount * total_fish_items)))
-    total = subtotal
-
-    print("\nTotal: $" + str("{:.2f}".format(total))) #print total
-    print(message_thanks) #print thank you message
-
-    print("\n# =========== FINAL ORDER RECEIPT =========== #\n")
-
-    time.sleep(5)
-    userinput = input("Would you like to start another order? ")
-    if userinput in yes:
-        begin_order()
-        return
 
 # Add Items Function
 def add_item(): #add item to order
@@ -295,118 +321,92 @@ def add_item(): #add item to order
             print(spacer)
             continue  # continue loop
 
-def get_user_details(is_delivery):
-    # Get customer's name
-    while True:  # Loop until user enters a valid name (eg. not nothing)
-        name = input("Please enter your name: ").title()
-        if name == "":
-            # Nothing entered message
-            print("Please enter a name!")
-            time.sleep(1)
-        else:
-            if input("Is this correct: " + name + " [Y/N]: ") in yes:
-                # Exit out of loop as a valid name has been reached
-                break
+# Edit Order
+def edit_order():  # to remove items from order
+    while True:
+        if len(order["items"]) > 0:  # checks if order > 0
+            i = 0
+            for item in order["items"]:  # prints all the items
+                i += 1
+                formatted_item = str(i) + ") " + item[0]
+                spaces = 25 - len(formatted_item)
+                print(formatted_item + " " * spaces + "QTY: " + str(item[1]))
 
-    print(spacer)
+            userinput = input("\nRemove item? (Input nothing to return to menu)\nSelection: ")
+            if userinput == "":  # if no input, return to menu without doing anything
+                print(spacer)
+                main_menu()  # back to menu
+                return
 
-    if(is_delivery):
-        # Get customer's address
-        while True:  # Loop until user enters a valid address (eg. not nothing)
-            address = input("Please enter your address: ").title()
-            if address == "":
-                # Nothing entered message
-                print("Please enter an address!")
+            try:
+                userinput = int(userinput)  # converts to int
+            except:  # failed to convert to integer
+                print(invalid_message_num)
                 time.sleep(1)
-            else:
-                if input("Is this correct: " + address + " [Y/N]: ") in yes:
-                    # Exit out of loop as a valid address has been reached
-                    break
+                print(spacer)
+                continue  # continue loop
 
-        print(spacer)
-
-    # Get customer's phone number
-    while True:  # Loop until user enters a valid phone number (eg. a number with no letters)
-        phone_number = input("Please enter your phone number (No spaces or plus, just numbers): ")
-        try:
-            phone_number = int(phone_number)
-            if input("Is this correct: " + str(phone_number) + " [Y/N]: ") in yes:
-                # Exit out of loop since correct number has been reached
-                break
-        except:
-            print(invalid_message_num)
-            time.sleep(1)
-
-    if(is_delivery):
-        return name, address, phone_number  # return variables
-    else:
-        return name, phone_number  # returns variables
-
-
-def begin_order():
-    global order
-    order = {
-        "items": [],
-        "frozen": False,
-        "delivery": False,
-        "name": "",
-        "address": "",
-        "phone": 0,
-    }
-
-    # Starting Order
-    print(title)
-    print("      Version: " + version + "            By Taine Reader\n")
-
-    print(spacer)
-
-    # Checking if order is to be delivered or picked up
-    while True:  # While true is used for continuosly getting input until a valid input is reached (eg. yes or no)
-        userinput = input("Is the order delivery? (Delivery orders have a $" + str("{:.2f}".format(delivery_cost)) + " delivery fee)\nDelivery? [Y/N]: ")
-        if userinput in yes: #if the answer is yes, enable delivery
-            delivery = True
-            break
-        elif userinput in no: #disable delivery
-            delivery = False
-            break
+            if len(order["items"]) >= userinput >= 1:  # if in the valid range of selections
+                del[order["items"][userinput - 1]]  # removes item from selections
+                print(spacer)
+                continue  # restart loop
         else:
-            print(invalid_message_yn) #invalid message
-            time.sleep(1)
-            print(spacer)
+            main_menu()  # return to menu
+            return
 
-    print(spacer)
+# Finish Order
+def finish_order():
+    if not order["items"]:  # if there are no items in the order, don't do anything
+        print("There were no items on this order, cancelling order")
+        time.sleep(5)
+        exit()
 
-    # Checking if order is to be prepared frozen or fresh
-    while True:  # While true is used for continuosly getting input until a valid input is reached (eg. yes or no)
-        userinput = input("Is the order frozen? (Frozen orders get a discount of $" + str("{:.2f}".format(frozen_discount)) + " per item)\nFrozen? [Y/N]: ")
-        if userinput in yes: #is frozen
-            frozen = True
-            break
-        elif userinput in no: #isn't frozen
-            frozen = False
-            break
-        else:
-            print(invalid_message_yn) #invalid input
-            time.sleep(1)
+    subtotal = 0
+    total = 0
+    total_fish_items = 0
 
-    print(spacer)
+    # Time to print receipt
+    print("\n\n\n# =========== FINAL ORDER RECEIPT =========== #\n")
 
-    if delivery: #for delivery items, need delivery details
-        name, address, phone_number = get_user_details(True)
-        order["name"] = name
-        order["address"] = address
-        order["phone"] = phone_number
-        print(spacer)
-    else:
-        name, phone_number = get_user_details(False)
-        order["name"] = name
-        order["phone"] = phone_number
+    print("Details:")  # printing details
+    print("  Delivery: " + str(order["delivery"]))
+    print("  Frozen: " + str(order["frozen"]))
+    print("  Name: " + order["name"])
+    print("  Phone: " + str(order["phone"]))
 
-    order["delivery"] = delivery #setting details in the order var
-    order["frozen"] = frozen
+    if order["delivery"]:
+        print("  Address: " + order["address"])
 
-    main_menu()
-    return
+    print("\nItems:")
+    for item in order["items"]:  # for each item in the order
+        spaces = 25 - len(item[0])  # get correct spacing to look nice
+        spaces2 = 8 - len(str(item[1]))  # ^^^
+        subtotal = subtotal + menu[item[0]]*item[1]  # calculate cost
+
+        if(item[0] not in non_fish_items):  # not a fish item, no need to subtract frozen discount
+            total_fish_items = total_fish_items + item[1]  # total items to then subtract the frozen cost off
+
+        print("  " + item[0] + " " * spaces + "QTY: " + str(item[1]) + " " * spaces2 + "Each: " + str("{:.2f}".format(menu[item[0]]))) #print the item, spaces, then the item quantity, spaces2 and then price each
+
+    print("\nSubtotal: $" + str("{:.2f}".format(subtotal)))  # subtotal before delivery and frozen costs applied ({:.2f} is used for 2 decimal places)
+    if order["delivery"]:  # if it's delivery add the delivery cost (default $5)
+        subtotal = subtotal + delivery_cost
+        print("Delivery cost: $" + str("{:.2f}".format(delivery_cost)))
+    if order["frozen"]: #if frozen subtract the frozen discount * amount of items (by default discount is -$1.05 per item)
+        subtotal = subtotal - frozen_discount * total_fish_items
+        print("Frozen discount: $" + str("{:.2f}".format(frozen_discount * total_fish_items)))
+    total = subtotal
+
+    print("\nTotal: $" + str("{:.2f}".format(total))) #print total
+    print(message_thanks) #print thank you message
+
+    print("\n# =========== FINAL ORDER RECEIPT =========== #\n")
+
+    time.sleep(5)
+    userinput = input("Would you like to start another order? ")
+    if userinput in yes:
+        begin_order()
+        return
 
 # ====================================================== END OF FUNCTIONS ============================================================== #
 
